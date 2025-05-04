@@ -1,0 +1,7 @@
+package com.reon.url_backend.exceptions;
+
+public class RestrictionException extends RuntimeException{
+    public RestrictionException(String message) {
+        super(message);
+    }
+}
