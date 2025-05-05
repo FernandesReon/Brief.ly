@@ -24,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -108,5 +109,19 @@ public class UserServiceImpl implements UserService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String jwt = jwtUtils.generateToken((User) userDetails);
         return new JwtAuthenticationResponse(jwt);
+    }
+
+    @Override
+    public UserResponseDTO getUserByEmail(String email) {
+        logger.info("Service :: Fetching user via email: " + email);
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UsernameNotFoundException("User with email: " + email + " not found.")
+        );
+        return UserMapper.responseToUser(user);
+    }
+
+    @Override
+    public Optional<User> findUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

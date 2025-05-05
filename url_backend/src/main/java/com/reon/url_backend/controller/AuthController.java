@@ -9,10 +9,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,5 +35,22 @@ public class AuthController {
         JwtAuthenticationResponse jwtToken =  userService.authenticateUser(loginDTO);
         logger.info("Controller :: Login successful.");
         return ResponseEntity.ok().body(jwtToken);
+    }
+
+    @PutMapping("/public/update/id/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable String id,
+                                                      @RequestBody UserRegistrationDTO updateDTO){
+        logger.info("Controller :: Incoming update request from Id: {}", id);
+        UserResponseDTO updatedUser = userService.updateUser(id, updateDTO);
+        logger.info("Controller :: User updated successfully.");
+        return ResponseEntity.ok().body(updatedUser);
+    }
+
+    @DeleteMapping("/public/delete/id/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id){
+        logger.warn("Controller :: Incoming request for deleting user with Id: {}", id);
+        userService.deleteUser(id);
+        logger.info("Controller :: User deleted wit Id: {}", id);
+        return ResponseEntity.noContent().build();
     }
 }

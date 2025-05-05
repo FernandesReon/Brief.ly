@@ -18,7 +18,7 @@ public class UserMapper {
         UserResponseDTO response = new UserResponseDTO();
         response.setId(user.getId());
         response.setName(user.getName());
-        response.setUsername(user.getUsername());
+        response.setUsername(user.getEntityUsername());
         response.setEmail(user.getEmail());
         response.setAccountEnabled(user.isAccountEnabled());
         response.setEmailVerified(user.isEmailVerified());
