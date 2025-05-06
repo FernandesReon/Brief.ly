@@ -45,4 +45,12 @@ public class GlobalExceptionHandler {
         error.put("message", "This operation is not allowed.");
         return ResponseEntity.badRequest().body(error);
     }
+
+    @ExceptionHandler(InvalidURlException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidUrlException(InvalidURlException invalidURlException){
+        logger.info("InvalidUrl Exception: " + invalidURlException.getMessage());
+        Map<String, String> error = new HashMap<>();
+        error.put("message", "Provided Url is invalid.");
+        return ResponseEntity.badRequest().body(error);
+    }
 }

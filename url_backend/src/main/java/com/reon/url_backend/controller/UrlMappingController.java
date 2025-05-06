@@ -1,5 +1,6 @@
 package com.reon.url_backend.controller;
 
+import com.reon.url_backend.dto.urlMapping.ClickEventDTO;
 import com.reon.url_backend.dto.urlMapping.UrlMappingDTO;
 import com.reon.url_backend.dto.urlMapping.UrlMappingResponse;
 import com.reon.url_backend.dto.UserResponseDTO;
@@ -16,6 +17,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/urls")
@@ -29,6 +35,7 @@ public class UrlMappingController {
         this.userService = userService;
     }
 
+    // Create a short url
     @PostMapping("/shorten")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<UrlMappingResponse> createShortUrl(@Valid @RequestBody UrlMappingDTO urlMappingDTO,
@@ -39,20 +46,18 @@ public class UrlMappingController {
         return ResponseEntity.ok().body(urlMappingResponse);
     }
 
+    // View all urls
     @GetMapping("/myUrls")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<Page<UrlMappingResponse>> fetchAllPaginatedUrls(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size, Principal principal){
-        logger.info("Fetching paginated URLs for user with email: {}", principal.getName());
+            @RequestParam(value = "size", defaultValue = "10") int size, Principal principal) {
+        logger.info("Fetching paginated URLs for user with email from Principal: {}", principal.getName());
         try {
-            // Fetch the User entity by email
             User user = userService.findUserEntityByEmail(principal.getName())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
-
-            // Fetch paginated URLs for the user
+            logger.info("Fetched user with id: {} for email: {}", user.getId(), user.getEmail());
             Page<UrlMappingResponse> responsePage = urlMappingService.getAllPaginatedUrlsForUser(user, page, size);
-
             logger.info("Successfully retrieved {} URLs for user with email: {}",
                     responsePage.getTotalElements(), principal.getName());
             return ResponseEntity.ok(responsePage);
@@ -64,5 +69,36 @@ public class UrlMappingController {
                     principal.getName(), e.getMessage());
             throw new RuntimeException("Failed to fetch URLs", e);
         }
+    }
+
+    @GetMapping("/analytics/{shortUrl}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<List<ClickEventDTO>> getUrlAnalytics(@PathVariable String shortUrl,
+                                                               @RequestParam(value = "startDate") String startDate,
+                                                               @RequestParam(value = "endDate") String endDate){
+        logger.info("Controller :: Accessing analytics for specific url");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        LocalDateTime start = LocalDateTime.parse(startDate, formatter);
+        LocalDateTime end = LocalDateTime.parse(endDate, formatter);
+
+        List<ClickEventDTO> clickEventDTOS = urlMappingService.getClickEventsByDate(shortUrl, start, end);
+        return ResponseEntity.ok().body(clickEventDTOS);
+    }
+
+    @GetMapping("/totalClicks")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<Map<LocalDate, Long>> getTotalClicksByDate(
+            Principal principal,
+            @RequestParam(value = "startDate") String startDate,
+            @RequestParam(value = "endDate") String endDate) {
+        logger.info("Controller :: Accessing analytics for urls");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        LocalDateTime start = LocalDateTime.parse(startDate, formatter);
+        LocalDateTime end = LocalDateTime.parse(endDate, formatter);
+
+        User user = userService.findUserEntityByEmail(principal.getName())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + principal.getName()));
+        Map<LocalDate, Long> totalClicks = urlMappingService.getTotalClicksByUserAndDate(user, start, end);
+        return ResponseEntity.ok().body(totalClicks);
     }
 }

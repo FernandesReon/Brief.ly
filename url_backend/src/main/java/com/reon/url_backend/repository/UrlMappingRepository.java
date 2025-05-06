@@ -14,4 +14,5 @@ import java.util.Optional;
 public interface UrlMappingRepository extends JpaRepository<UrlMapping, Long> {
     Optional<UrlMapping> findByShortUrl(String shortUrl);
     Page<UrlMapping> findByUser(User user, Pageable pageable);
+    List<UrlMapping> findByUser(User user);
 }
