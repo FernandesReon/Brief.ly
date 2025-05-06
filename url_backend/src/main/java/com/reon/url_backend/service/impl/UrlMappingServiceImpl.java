@@ -100,6 +100,7 @@ public class UrlMappingServiceImpl implements UrlMappingService {
 
     @Override
     public List<ClickEventDTO> getClickEventsByDate(String shortUrl, LocalDateTime startDate, LocalDateTime endDate) {
+        logger.info("Service :: Accessing specific shortUrl: "+ shortUrl +  " information, from: {} to: {}", startDate, endDate);
         UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl)
                 .orElseThrow(() -> new IllegalArgumentException("Mapping not found for shortUrl: " + shortUrl));
         return clickEventRepository.findByUrlMappingAndClickDateBetween(urlMapping, startDate, endDate).stream()
@@ -114,6 +115,7 @@ public class UrlMappingServiceImpl implements UrlMappingService {
 
     @Override
     public Map<LocalDate, Long> getTotalClicksByUserAndDate(User user, LocalDateTime start, LocalDateTime end) {
+        logger.info("Service :: Accessing information about urls from: {} to: {} time-line", start, end);
         List<UrlMapping> urlMappings = urlMappingRepository.findByUser(user);
         List<ClickEvent> clickEvents = clickEventRepository.findByUrlMappingInAndClickDateBetween(urlMappings, start, end);
         return clickEvents.stream()
@@ -123,9 +125,34 @@ public class UrlMappingServiceImpl implements UrlMappingService {
                 ));
     }
 
+    /*
+    Logic for redirecting
+     */
+    @Override
+    public UrlMapping getOriginalUrl(String shortUrl) {
+        logger.info("Service :: Accessing shortUrl: " + shortUrl + " to redirect.");
+        UrlMapping urlMapping = urlMappingRepository.findByShortUrl(shortUrl)
+                .orElseThrow(() -> new IllegalArgumentException("Mapping not found for shortUrl: " + shortUrl));
+        if (urlMapping != null){
+            urlMapping.setClickedCounts(urlMapping.getClickedCounts() + 1);
+            urlMappingRepository.save(urlMapping);
+
+            ClickEvent clickEvent = new ClickEvent();
+            clickEvent.setClickDate(LocalDateTime.now());
+            clickEvent.setUrlMapping(urlMapping);
+            clickEventRepository.save(clickEvent);
+        }
+        return urlMapping;
+    }
+
+    /*
+    Helper methods
+    1. Generate shortURL
+    2. Check if provided URL is valid or not.
+     */
     private String generateShortUrl() {
         Random random = new Random();
-        StringBuilder shortUrl = new StringBuilder("https://");
+        StringBuilder shortUrl = new StringBuilder();
         for (int i = 0; i < SHORT_URL_LENGTH; i++) {
             shortUrl.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
         }

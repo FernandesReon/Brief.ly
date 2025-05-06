@@ -71,6 +71,11 @@ public class UrlMappingController {
         }
     }
 
+    /*
+    Analytics endpoints
+    1. specific endpoint
+    2. for specific time period
+     */
     @GetMapping("/analytics/{shortUrl}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<List<ClickEventDTO>> getUrlAnalytics(@PathVariable String shortUrl,

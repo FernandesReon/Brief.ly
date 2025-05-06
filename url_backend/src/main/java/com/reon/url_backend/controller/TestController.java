@@ -14,6 +14,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/test")
 public class TestController {
+    /*
+    Test Controller: Fetch all the urls linked to a specific user with authentication.
+    Testing purpose only.
+     */
     private final UrlMappingRepository urlMappingRepository;
 
     public TestController(UrlMappingRepository urlMappingRepository) {
