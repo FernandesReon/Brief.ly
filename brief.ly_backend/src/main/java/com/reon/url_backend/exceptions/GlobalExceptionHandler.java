@@ -1,8 +1,10 @@
 package com.reon.url_backend.exceptions;
 
+import com.reon.url_backend.dto.LoginDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,7 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleEmailExceptions(EmailAlreadyExistsException emailAlreadyExistsException){
         logger.info("Email Exception: " + emailAlreadyExistsException.getMessage());
         Map<String, String> error = new HashMap<>();
-        error.put("message", "User with this email already exists.");
+        error.put("email", "User with this email already exists.");
         return ResponseEntity.badRequest().body(error);
     }
 
@@ -34,7 +36,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleUsernameExceptions(UsernameAlreadyExistsException usernameAlreadyExistsException){
         logger.info("Email Exception: " + usernameAlreadyExistsException.getMessage());
         Map<String, String> error = new HashMap<>();
-        error.put("message", "User with this username already exists.");
+        error.put("username", "User with this username already exists.");
         return ResponseEntity.badRequest().body(error);
     }
 

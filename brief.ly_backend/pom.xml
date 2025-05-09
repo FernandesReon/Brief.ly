@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.reon</groupId>
-    <artifactId>url_backend</artifactId>
+    <artifactId>ly_backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>url_backend</name>
     <description>url_backend</description>

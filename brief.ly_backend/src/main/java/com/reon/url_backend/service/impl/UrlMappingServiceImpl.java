@@ -152,7 +152,7 @@ public class UrlMappingServiceImpl implements UrlMappingService {
      */
     private String generateShortUrl() {
         Random random = new Random();
-        StringBuilder shortUrl = new StringBuilder();
+        StringBuilder shortUrl = new StringBuilder("briefly.com/");
         for (int i = 0; i < SHORT_URL_LENGTH; i++) {
             shortUrl.append(CHARACTERS.charAt(random.nextInt(CHARACTERS.length())));
         }
