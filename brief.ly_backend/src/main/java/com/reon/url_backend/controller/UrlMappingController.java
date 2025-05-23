@@ -25,6 +25,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/urls")
+@CrossOrigin("*")
 public class UrlMappingController {
     private final Logger logger = LoggerFactory.getLogger(UrlMappingController.class);
     private final UrlMappingServiceImpl urlMappingService;
